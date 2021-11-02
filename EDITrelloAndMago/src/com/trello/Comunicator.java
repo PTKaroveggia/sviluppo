@@ -196,11 +196,16 @@ public class Comunicator {
 
 		// TODO: se non trovo le etichette dovrò crearne di nuove
 		// Cerco le due etichette necessarie alla gestione dell'acconto
+		// TODO: AR Aggiungere terza etichetta 
 		Label accontoOK = new Label(null);
 		Label accontoKO = new Label(null);
 		accontoOK = etichette.getList().get("ORDINE-CON ACCONTO");
 		accontoKO = etichette.getList().get("ORDINE-NO ACCONTO");
-		StringBuffer sb = new StringBuffer();
+		StringBuffer sbTrelloProgettiNonID = new StringBuffer();
+		StringBuffer sbMagoDataVariata = new StringBuffer();
+		StringBuffer sbTrelloPrioritaVariata = new StringBuffer();
+		
+		// TODO: AR Se tutte tre etichette non null, ok ... altrimenti cosa fare???
 		
 		// TODO per Alberto: isolare i string buffer per contestualizzare i testi delle email:
 		// sobo@pharmathek.com mail con elenco progetti data variata, e nr totale progetti analizzati. Modificare l'oggeto della mail se presenti o meno progetti con data variata
@@ -210,17 +215,19 @@ public class Comunicator {
 		// ciclo su tutte le card e ele controllo una alla volta
 		for (Map.Entry<String, Card> entry : progetti.getCards().entrySet()) {
 			System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, sb);
+			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, sbTrelloProgettiNonID, sbMagoDataVariata, sbTrelloPrioritaVariata);
 		}
 		
-		if (sb.length() == 0) {
-			sb.append("NON SONO STATE RILEVATE VARIAZIONI"); 
-		} 
+		// TODO: AR Verificare se sb valorizzati o meno, se valorizzati inviare email se vuoti ... ????
 		
-		
-		new SendMail().sendEmail("s.mezzani@pharmathek.com", "Confronto ordini TRELLO - MAGO", sb.toString()) ;
-
-		
+//		if (sbMagoDataVariata.length() == 0) {
+//			sbMagoDataVariata.append("NON SONO STATE RILEVATE VARIAZIONI"); 
+//		} 
+//		
+//		
+//		new SendMail().sendEmail("s.mezzani@pharmathek.com", "Confronto ordini TRELLO - MAGO", sbMagoDataVariata.toString()) ;
+//
+//		
 		/*
 		 * 
 		 * // Aggioungi label TrelloUtils.addLabel("61498d910000c8335d9ceb8b",
@@ -269,7 +276,7 @@ public class Comunicator {
 	
 	// Verifico i dati del progetto, leggendo i dati dal db e confrontandoli con i
 	// dati presenti su Trello
-	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, StringBuffer sb) throws SQLException {
+	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, StringBuffer sbTrelloProgettiNonID, StringBuffer sbMagoDataVariata, StringBuffer sbTrelloPrioritaVariata) throws SQLException {
 		String newline = System.getProperty("line.separator");
 		
 		/*
@@ -287,16 +294,21 @@ public class Comunicator {
 		sb.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
 		sb.append("progetto su Trello : "+ progetto.getName() +newline); 
 		sb.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
-		Boolean lineAded = false; 
+		Boolean lineAdded = false; 
 
 		
 		
 		if (progetto.getMagoNrOrdine().equals("")) {
-			sb.append(">> Ordine MAGO non identificato. Verificare il nome del progetto su TRELLO (il numero ordine deve essere tra parentesi quadre. ex: [nrOrdine])." + newline);
-			lineAded = true; 
+			sbTrelloProgettiNonID.append("Progetto su Trello : "+ progetto.getName() +newline); 
+			sbTrelloProgettiNonID.append(">> Ordine MAGO su TRELLO non identificato. Verificare il nome del progetto su TRELLO (il numero ordine deve essere tra parentesi quadre. ex: [nrOrdine])." + newline);
+			lineAdded = true; 
 		} else if (!ordine.isRecordExist()) {
+			sb.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
+			sb.append("progetto su Trello : "+ progetto.getName() +newline); 
+			sb.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
+
 			sb.append(">> Ordine non trovato su MAGO. Verificare su Trello il che il numero dell'ordine sia corretto)." + newline);
-			lineAded = true; 
+			lineAdded = true; 
 		} else {
 			
 			if (!dateUguali(progetto.getDue(), ordine.getData())) {
@@ -305,7 +317,7 @@ public class Comunicator {
 				System.out.println("Data Mago  :" + ordine.getData());
 	
 				sb.append(">> La data di consegna risulta variata:  Data in Trello: "+ printDateToStr(progetto.getDue()) + " Data in Mago: " +  printDateToStr(ordine.getData())+newline); 
-				lineAded = true; 
+				lineAdded = true; 
 				
 			} else {
 				System.out.println("Date UGUALI");
@@ -313,7 +325,7 @@ public class Comunicator {
 			
 		}
 		
-		if (!lineAded) {
+		if (!lineAdded) {
 			sb.append("-"+newline); 
 		}
 		
