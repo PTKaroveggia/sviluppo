@@ -296,7 +296,7 @@ public class Comunicator {
 		sb.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
 		Boolean lineAdded = false; 
 
-		
+		   
 		
 		if (progetto.getMagoNrOrdine().equals("")) {
 			sbTrelloProgettiNonID.append("Progetto su Trello : "+ progetto.getName() +newline); 
