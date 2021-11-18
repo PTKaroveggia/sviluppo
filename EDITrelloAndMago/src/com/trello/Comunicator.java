@@ -202,6 +202,7 @@ public class Comunicator {
 		accontoOK = etichette.getList().get("ORDINE-CON ACCONTO");
 		accontoKO = etichette.getList().get("ORDINE-NO ACCONTO");
 		StringBuffer sbTrelloProgettiNonID = new StringBuffer();
+		StringBuffer sbOrdineNonTrovato = new StringBuffer();
 		StringBuffer sbMagoDataVariata = new StringBuffer();
 		StringBuffer sbTrelloPrioritaVariata = new StringBuffer();
 		
@@ -215,7 +216,8 @@ public class Comunicator {
 		// ciclo su tutte le card e ele controllo una alla volta
 		for (Map.Entry<String, Card> entry : progetti.getCards().entrySet()) {
 			System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, sbTrelloProgettiNonID, sbMagoDataVariata, sbTrelloPrioritaVariata);
+			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, sbTrelloProgettiNonID, sbOrdineNonTrovato, sbMagoDataVariata, sbTrelloPrioritaVariata);
+			
 		}
 		
 		// TODO: AR Verificare se sb valorizzati o meno, se valorizzati inviare email se vuoti ... ????
@@ -224,8 +226,15 @@ public class Comunicator {
 //			sbMagoDataVariata.append("NON SONO STATE RILEVATE VARIAZIONI"); 
 //		} 
 //		
-//		
-//		new SendMail().sendEmail("s.mezzani@pharmathek.com", "Confronto ordini TRELLO - MAGO", sbMagoDataVariata.toString()) ;
+//
+		
+		
+		
+//		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Trello senza ID", sbTrelloProgettiNonID.toString()) ;
+		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Trello non trovati in MAGO", sbOrdineNonTrovato.toString()) ;
+		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Date di consegna variate", sbMagoDataVariata.toString()) ;
+		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Priorità variate", sbTrelloPrioritaVariata.toString()) ;
+		
 //
 //		
 		/*
@@ -276,7 +285,14 @@ public class Comunicator {
 	
 	// Verifico i dati del progetto, leggendo i dati dal db e confrontandoli con i
 	// dati presenti su Trello
-	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, StringBuffer sbTrelloProgettiNonID, StringBuffer sbMagoDataVariata, StringBuffer sbTrelloPrioritaVariata) throws SQLException {
+	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, 
+				StringBuffer sbTrelloProgettiNonID, 
+				StringBuffer sbOrdineNonTrovato, 
+				StringBuffer sbMagoDataVariata, 
+				StringBuffer sbTrelloPrioritaVariata
+		) throws SQLException {
+		
+		
 		String newline = System.getProperty("line.separator");
 		
 		/*
@@ -291,24 +307,35 @@ public class Comunicator {
 
 		System.out.println(ordine.getNrOrdine());
 
-		sb.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
-		sb.append("progetto su Trello : "+ progetto.getName() +newline); 
-		sb.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
-		Boolean lineAdded = false; 
+		StringBuffer sbTemp = new StringBuffer(); 
+		
+		sbTemp.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
+		sbTemp.append("progetto su Trello : "+ progetto.getName() +newline); 
+		sbTemp.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
 
-		   
 		
 		if (progetto.getMagoNrOrdine().equals("")) {
+			
+			if(sbTrelloProgettiNonID.length() == 0 ) {
+				sbTrelloProgettiNonID.append(newline+"Elenco progetti Trello non identificabili su MAGO."+newline+newline+
+													 "Verificare il nome del progetto su TRELLO: il numero dell'ordine di MAGO deve essere tra parentesi quadre. ex: [nrOrdine]." + newline +newline);
+			}
+			
 			sbTrelloProgettiNonID.append("Progetto su Trello : "+ progetto.getName() +newline); 
-			sbTrelloProgettiNonID.append(">> Ordine MAGO su TRELLO non identificato. Verificare il nome del progetto su TRELLO (il numero ordine deve essere tra parentesi quadre. ex: [nrOrdine])." + newline);
-			lineAdded = true; 
+			
 		} else if (!ordine.isRecordExist()) {
-			sb.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
-			sb.append("progetto su Trello : "+ progetto.getName() +newline); 
-			sb.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
+			
+			if (sbOrdineNonTrovato.length() == 0) {
+				sbOrdineNonTrovato.append(newline+"Elenco progetti Trello non trovati su MAGO."+newline+newline
+										+"Verificare su Trello il che il numero dell'ordine sia corretto)." + newline);
+			}
+			
 
-			sb.append(">> Ordine non trovato su MAGO. Verificare su Trello il che il numero dell'ordine sia corretto)." + newline);
-			lineAdded = true; 
+			
+			sbOrdineNonTrovato.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
+			sbOrdineNonTrovato.append("progetto su Trello : "+ progetto.getName() +newline); 
+			sbOrdineNonTrovato.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
+
 		} else {
 			
 			if (!dateUguali(progetto.getDue(), ordine.getData())) {
@@ -316,25 +343,18 @@ public class Comunicator {
 				System.out.println("Data Trello:" + progetto.getDue());
 				System.out.println("Data Mago  :" + ordine.getData());
 	
-				sb.append(">> La data di consegna risulta variata:  Data in Trello: "+ printDateToStr(progetto.getDue()) + " Data in Mago: " +  printDateToStr(ordine.getData())+newline); 
-				lineAdded = true; 
-				
+				sbMagoDataVariata.append(">> La data di consegna risulta variata:  Data in Trello: "+ printDateToStr(progetto.getDue()) + " Data in Mago: " +  printDateToStr(ordine.getData())+newline); 
 			} else {
 				System.out.println("Date UGUALI");
 			}
 			
 		}
 		
-		if (!lineAdded) {
-			sb.append("-"+newline); 
-		}
-		
-		
 
-		System.out.println(ordine.getPriorita());
-		System.out.println(ordine.getData());
-		System.out.println("Fine lettura dati prgetto");
-		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+//		System.out.println(ordine.getPriorita());
+//		System.out.println(ordine.getData());
+//		System.out.println("Fine lettura dati prgetto");
+//		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
 	}
 
