@@ -61,6 +61,7 @@ public abstract class TrelloUtils {
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void addLabel(String cardId, String labelId) {
 		HashMap<String, String> keys2 = new HashMap<>();
 		keys2.put("{id}", cardId);
@@ -68,6 +69,7 @@ public abstract class TrelloUtils {
 		System.out.println(response.getBody());
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void deleteLabel(String cardId, String labelId) {
 		HashMap<String, String> keys3 = new HashMap<>();
 		keys3.put("{id}", cardId);
