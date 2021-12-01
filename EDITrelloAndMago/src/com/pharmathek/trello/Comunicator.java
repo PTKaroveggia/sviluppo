@@ -1,4 +1,4 @@
-package com.trello;
+package com.pharmathek.trello;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -10,20 +10,19 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.db.JdbcMsSql;
-import com.db.bean.MagoOrdine;
-import com.sendemail.SendMail;
-import com.trello.beans.Board;
-import com.trello.beans.Card;
-import com.trello.beans.Cards;
-import com.trello.beans.Label;
-import com.trello.beans.Labels;
-import com.trello.beans.List;
+import com.pharmathek.db.JdbcMsSql;
+import com.pharmathek.db.bean.MagoOrdine;
+import com.pharmathek.sendemail.SendMail;
+import com.pharmathek.trello.beans.Board;
+import com.pharmathek.trello.beans.Card;
+import com.pharmathek.trello.beans.Cards;
+import com.pharmathek.trello.beans.Label;
+import com.pharmathek.trello.beans.Labels;
 
 public class Comunicator {
 
-	static String  newline = System.getProperty("line.separator");
-	
+	static String newline = System.getProperty("line.separator");
+
 	public void run() {
 
 		/*
@@ -61,8 +60,8 @@ public class Comunicator {
 		 * 
 		 */
 
-//		Board board = getBoard("Slots Installazioni");
-		Board board = getBoard("Slots installazioni di prova");
+		Board board = getBoard("Slots Installazioni");
+//		Board board = getBoard("Slots installazioni di prova");
 		System.out.println(board.getName());
 		System.out.println(board.getId());
 		// elaboraListe(board);
@@ -134,22 +133,22 @@ public class Comunicator {
 		return board;
 	}
 
-	private void elaboraListe(Board board) {
-
-		HashMap<String, List> liste = new HashMap<String, List>();
-
-		HashMap<String, String> keys = new HashMap<>();
-		keys.put("{id}", board.getId());
-		JSONArray arrBoards = TrelloUtils.getArrayResponse(TrelloCurls.BOARD_LISTS, keys);
-
-		for (int i = 0; i < arrBoards.length(); i++) {
-			JSONObject innerObj = arrBoards.getJSONObject(i);
-			List listTemp = new List(innerObj);
-			liste.put(listTemp.getName(), listTemp);
-			System.out.println(listTemp.getName());
-			System.out.println("--------------------");
-		}
-	}
+//	private void elaboraListe(Board board) {
+//
+//		HashMap<String, List> liste = new HashMap<String, List>();
+//
+//		HashMap<String, String> keys = new HashMap<>();
+//		keys.put("{id}", board.getId());
+//		JSONArray arrBoards = TrelloUtils.getArrayResponse(TrelloCurls.BOARD_LISTS, keys);
+//
+//		for (int i = 0; i < arrBoards.length(); i++) {
+//			JSONObject innerObj = arrBoards.getJSONObject(i);
+//			List listTemp = new List(innerObj);
+//			liste.put(listTemp.getName(), listTemp);
+//			System.out.println(listTemp.getName());
+//			System.out.println("--------------------");
+//		}
+//	}
 
 	private void elaboraCards(Board board) throws Exception {
 
@@ -162,9 +161,10 @@ public class Comunicator {
 		Label accontoKO_OKDG = new Label(null);
 		accontoOK = anagraficoEtichette.getList().get("ORDINE-CON ACCONTO");
 		accontoKO = anagraficoEtichette.getList().get("ORDINE-NO ACCONTO");
-		accontoKO_OKDG = anagraficoEtichette.getList().get("ORDINE-NO ACCONTO - OK PROD");
+		accontoKO_OKDG = anagraficoEtichette.getList().get("ORDINE NO ACCONTO - OK PROD");
 
-		// TODO: SM 19.11.21 per AR: se le etichette non esistono devono essere create nella Board
+		// TODO: SM 19.11.21 per AR: se le etichette non esistono devono essere create
+		// nella Board
 		if (accontoOK == null) {
 			// Creo nuova atichettta in Trello
 		}
@@ -195,16 +195,16 @@ public class Comunicator {
 
 	private void controlliENotifiche(Label accontoOK, Label accontoKO, Label accontoKO_OKDG, Cards progetti)
 			throws SQLException {
-		
+
 		String emailDestProd, emailDestSOBO;
-		
+
 		emailDestProd = "produzione@pharmathek.com";
-		emailDestSOBO = "sobo@pharmathek.com"; 
-		
+		emailDestSOBO = "sobo@pharmathek.com";
+
 		if (TrelloUtils.debug) {
 			emailDestProd = "s.mezzani@pharmathek.com";
-			emailDestSOBO = "s.mezzani@pharmathek.com"; 
-			
+			emailDestSOBO = "s.mezzani@pharmathek.com";
+
 		}
 
 		// Creo i SB per reportistica via email
@@ -215,8 +215,7 @@ public class Comunicator {
 
 		// ciclo su tutte le card e ele controllo una alla volta
 		for (Map.Entry<String, Card> entry : progetti.getCards().entrySet()) {
-			// System.out.println("Key = " + entry.getKey() + ", Value = " +
-			// entry.getValue());
+
 			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, accontoKO_OKDG, sbTrelloProgettiNonID,
 					sbOrdineNonTrovato, sbMagoDataVariata, sbTrelloPrioritaVariata);
 
@@ -225,20 +224,25 @@ public class Comunicator {
 		// Preparazione invio email
 
 		if (sbTrelloProgettiNonID.length() != 0) {
-			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello senza ID", sbTrelloProgettiNonID.toString());
+			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello senza ID",
+					sbTrelloProgettiNonID.toString());
 		}
 
 		if (sbOrdineNonTrovato.length() != 0) {
-			new SendMail().sendEmail(emailDestProd,"CtrOrder TRELLO-MAGO Progetti Trello non trovati in MAGO", sbOrdineNonTrovato.toString());
+			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello non trovati in MAGO",
+					sbOrdineNonTrovato.toString());
 		}
 
 		if (sbMagoDataVariata.length() != 0) {
-			new SendMail().sendEmail(emailDestSOBO,"CtrOrder TRELLO-MAGO Progetti Date di consegna variate", sbMagoDataVariata.toString());
+			new SendMail().sendEmail(emailDestSOBO, "CtrOrder TRELLO-MAGO Progetti Date di consegna variate",
+					sbMagoDataVariata.toString());
 		}
 
 		if (sbTrelloPrioritaVariata.length() != 0) {
-			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Priorita' variate", sbTrelloPrioritaVariata.toString());
-			new SendMail().sendEmail(emailDestSOBO, "CtrOrder TRELLO-MAGO Progetti Priorita' variate", sbTrelloPrioritaVariata.toString());			
+			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Priorita' variate",
+					sbTrelloPrioritaVariata.toString());
+			// new SendMail().sendEmail(emailDestSOBO, "CtrOrder TRELLO-MAGO Progetti
+			// Priorita' variate", sbTrelloPrioritaVariata.toString());
 		}
 	}
 
@@ -248,7 +252,6 @@ public class Comunicator {
 			StringBuffer sbTrelloProgettiNonID, StringBuffer sbOrdineNonTrovato, StringBuffer sbMagoDataVariata,
 			StringBuffer sbTrelloPrioritaVariata) throws SQLException {
 
-
 		/*
 		 * Verifiche da effettuare: Data di scadenza di trello --> data consegna di
 		 * mago. Se variata aggiornare la data presente su Mago e notificare via email
@@ -257,72 +260,84 @@ public class Comunicator {
 		// LEGGO I DATI DELL'ORDINE DAL DB DI MAGO
 		MagoOrdine ordine = JdbcMsSql.readOrdine(progetto.getMagoNrOrdine());
 
-		// VERIFICO LE INFORMAZIONI CON I DATI PRESENTI SU TRELLO
-
-		System.out.println(ordine.getNrOrdine());
-
-		StringBuffer sbTemp = new StringBuffer();
-
-		sbTemp.append(newline + "Ordine " + progetto.getMagoNrOrdine() + newline);
-		sbTemp.append("Progetto Trello : " + progetto.getName() + newline);
-		sbTemp.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline);
-
-		if (progetto.getMagoNrOrdine().equals("")) {
-
-			if (sbTrelloProgettiNonID.length() == 0) {
-				sbTrelloProgettiNonID.append(newline + "Elenco progetti Trello non identificabili su MAGO.".toUpperCase() + newline
-						+ newline
-						+ "Verificare il nome del progetto su TRELLO: il numero dell'ordine di MAGO deve essere tra parentesi quadre. ex: [nrOrdine].".toUpperCase()
-						+ newline + newline);
-			}
-
-			sbTrelloProgettiNonID.append("Progetto Trello : " + progetto.getName() + newline);
-
-		} else if (!ordine.isRecordExist()) {
-
-			if (sbOrdineNonTrovato.length() == 0) {
-				sbOrdineNonTrovato.append(newline + "Elenco progetti Trello non trovati su MAGO.".toUpperCase() + newline + newline
-						+ "Verificare su Trello che il numero dell'ordine sia corretto; ".toUpperCase()
-						+ "L'ordine presente tra parentesi quadre non e' stato trovato in MAGO.".toUpperCase() + newline + newline);
-			}
-
-			sbOrdineNonTrovato.append("Progetto Trello : " + progetto.getName() + newline);
-			sbOrdineNonTrovato.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline + newline);
-
+		if (ordine.getNrOrdine().contains("*") || ordine.getNrOrdine().toUpperCase().contains("SLOT") ) {
+				System.out.println("Caso ignorato: " + ordine.getNrOrdine());
 		} else {
+			
 
-			if (!dateUguali(progetto.getDue(), ordine.getData())) {
-				System.out.println("Date diverse");
-				System.out.println("Data Trello:" + progetto.getDue());
-				System.out.println("Data Mago  :" + ordine.getData());
+			// VERIFICO LE INFORMAZIONI CON I DATI PRESENTI SU TRELLO
 
-				if (sbMagoDataVariata.length() == 0) {
-					sbMagoDataVariata.append(
-							newline + "Elenco progetti dove la data di consegna risulta variata.".toUpperCase() + newline + newline);
+			System.out.println(ordine.getNrOrdine());
+
+			StringBuffer sbTemp = new StringBuffer();
+
+			sbTemp.append(newline + "Ordine " + progetto.getMagoNrOrdine() + newline);
+			sbTemp.append("Progetto Trello : " + progetto.getName() + newline);
+			sbTemp.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline);
+
+			if (progetto.getMagoNrOrdine().equals("")) {
+
+				if (sbTrelloProgettiNonID.length() == 0) {
+					sbTrelloProgettiNonID.append(newline
+							+ "Elenco progetti Trello non identificabili su MAGO.".toUpperCase() + newline + newline
+							+ "Verificare il nome del progetto su TRELLO: il numero dell'ordine di MAGO deve essere tra parentesi quadre. ex: [nrOrdine]."
+									.toUpperCase()
+							+ newline + newline);
 				}
 
-				sbMagoDataVariata.append("Ordine MAGO    : " + ordine.getNrOrdine() + newline);
-				sbMagoDataVariata.append("Progetto TRELLO: " + progetto.getName() + newline);
-				sbMagoDataVariata.append("Data MAGO      : " + printDateToStr(ordine.getData()) + newline);
-				sbMagoDataVariata.append("Data Trello    : " + printDateToStr(progetto.getDue()) + newline + newline);
+				sbTrelloProgettiNonID.append("Progetto Trello : " + progetto.getName() + newline);
 
-				// TODO:x SM  Modificare la data in MAGO
-				// JdbcMsSql.updateDataOrdine(ordine, null);
-				
+			} else if (!ordine.isRecordExist()) {
+
+				if (sbOrdineNonTrovato.length() == 0) {
+					sbOrdineNonTrovato.append(newline + "Elenco progetti Trello non trovati su MAGO.".toUpperCase()
+							+ newline + newline
+							+ "Verificare su Trello che il numero dell'ordine sia corretto; ".toUpperCase()
+							+ "L'ordine presente tra parentesi quadre non e' stato trovato in MAGO.".toUpperCase()
+							+ newline + newline);
+				}
+
+				sbOrdineNonTrovato.append("Progetto Trello : " + progetto.getName() + newline);
+				sbOrdineNonTrovato.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline + newline);
+
 			} else {
-				System.out.println("Date UGUALI");
+
+				if (!dateUguali(progetto.getDue(), ordine.getData())) {
+					System.out.println("Date diverse");
+					System.out.println("Data Trello:" + progetto.getDue());
+					System.out.println("Data Mago  :" + ordine.getData());
+
+					if (sbMagoDataVariata.length() == 0) {
+						sbMagoDataVariata.append(
+								newline + "Elenco progetti dove la data di consegna risulta variata.".toUpperCase()
+										+ newline + newline);
+					}
+
+					sbMagoDataVariata.append("Ordine MAGO    : " + ordine.getNrOrdine() + newline);
+					sbMagoDataVariata.append("Progetto TRELLO: " + progetto.getName() + newline);
+					sbMagoDataVariata.append("Data MAGO      : " + printDateToStr(ordine.getData()) + newline);
+					sbMagoDataVariata
+							.append("Data Trello    : " + printDateToStr(progetto.getDue()) + newline + newline);
+
+					// TODO:x SM Modificare la data in MAGO
+					JdbcMsSql.updateDataOrdine(ordine, progetto.getDue());
+
+				} else {
+					System.out.println("Date UGUALI");
+				}
+
+				controllaPriorita(progetto, 40, accontoOK, sbTrelloPrioritaVariata, ordine);
+				controllaPriorita(progetto, 41, accontoKO, sbTrelloPrioritaVariata, ordine);
+				controllaPriorita(progetto, 50, accontoKO_OKDG, sbTrelloPrioritaVariata, ordine);
+
 			}
-
-			controllaPriorita(progetto, 40, accontoOK, sbTrelloPrioritaVariata, ordine);
-			controllaPriorita(progetto, 41, accontoKO, sbTrelloPrioritaVariata, ordine);
-			controllaPriorita(progetto, 50, accontoKO_OKDG, sbTrelloPrioritaVariata, ordine);
-
 		}
 
 	}
 
 	/**
-	 * Procedura per la verifica delle priorità impostate su Mago 
+	 * Procedura per la verifica delle priorità impostate su Mago
+	 * 
 	 * @param progetto
 	 * @param priorita
 	 * @param etichetta
@@ -332,14 +347,10 @@ public class Comunicator {
 	private void controllaPriorita(Card progetto, int priorita, Label etichetta, StringBuffer sbTrelloPrioritaVariata,
 			MagoOrdine ordine) {
 
-		
-		if (sbTrelloPrioritaVariata.length() == 0) {
-			sbTrelloPrioritaVariata.append(newline + "Elenco progetti Trello con priorita' variata su MAGO.".toUpperCase() + newline + newline);
-		}
 
-		
 		if (ordine.getPriorita() == priorita) {
 			if (progetto.getEtichette().getList().get(etichetta.getName()) == null) {
+				controllaPrioritaInserisciIntestazione(sbTrelloPrioritaVariata);
 				System.out.println("Etichetta " + etichetta.getName() + " aggiunta");
 				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
 				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
@@ -350,6 +361,7 @@ public class Comunicator {
 		} else {
 
 			if (progetto.getEtichette().getList().get(etichetta.getName()) != null) {
+				controllaPrioritaInserisciIntestazione(sbTrelloPrioritaVariata);
 				System.out.println("Etichetta " + etichetta.getName() + " rimossa");
 				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
 				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
@@ -360,10 +372,19 @@ public class Comunicator {
 		}
 	}
 
+	private void controllaPrioritaInserisciIntestazione(StringBuffer sbTrelloPrioritaVariata) {
+		if (sbTrelloPrioritaVariata.length() == 0) {
+			sbTrelloPrioritaVariata.append(newline
+					+ "Elenco progetti Trello con priorita' variata su MAGO.".toUpperCase() + newline + newline);
+		}
+	}
+
 	private boolean dateUguali(Date due, Date data) {
 		// Verifico le date escludendo dal confronto l'orario
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-		if ((due == null) || (data == null)) {
+		if ((due == null) && (data == null)) {
+			return true;
+		} else if ((due == null) || (data == null)) {
 			return false;
 		} else {
 			return df.format(due).equals(df.format(data));

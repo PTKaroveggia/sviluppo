@@ -1,5 +1,7 @@
-package com.db.bean;
+package com.pharmathek.db.bean;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MagoOrdine {
@@ -28,6 +30,17 @@ public class MagoOrdine {
 	}
 
 	public void setData(Date data) {
+
+		if (data != null) {
+			try {
+				if (data.equals((new SimpleDateFormat("yyyy-MM-dd")).parse("1799-12-31"))) {
+					data = null;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		this.data = data;
 	}
 
@@ -54,5 +67,7 @@ public class MagoOrdine {
 	public int getSaleOrdId() {
 		return saleOrdId;
 	}
+	
+	
 
 }

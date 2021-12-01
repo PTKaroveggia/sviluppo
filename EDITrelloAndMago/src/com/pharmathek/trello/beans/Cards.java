@@ -1,4 +1,4 @@
-package com.trello.beans;
+package com.pharmathek.trello.beans;
 
 import java.util.HashMap;
 

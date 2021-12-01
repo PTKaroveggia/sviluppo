@@ -1,4 +1,4 @@
-package com.trello.beans;
+package com.pharmathek.trello.beans;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,7 +8,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.trello.TrelloUtils;
+import com.pharmathek.trello.TrelloUtils;
 
 public class Card {
 
@@ -142,15 +142,17 @@ public class Card {
 			inizio = name.indexOf("[");
 			fine = name.indexOf("]");
 			
-			if ((inizio > 0 ) & (fine > 0)) {
+			if ((inizio >= 0 ) & (fine >= 0)) {
 				magoNrOrdine = name.substring(inizio+1, fine);
 			}
 			
-			magoNrOrdine = magoNrOrdine.replaceAll("Ordine ", "");
-			magoNrOrdine = magoNrOrdine.replaceAll("Ord. ", "");
+			magoNrOrdine = magoNrOrdine.toUpperCase().replaceAll("ORDINE ", "");
+			magoNrOrdine = magoNrOrdine.toUpperCase().replaceAll("ORD. ", "");
 
-			magoNrOrdine = magoNrOrdine.replaceAll("Ordine", "");
-			magoNrOrdine = magoNrOrdine.replaceAll("Ord.", "");
+			magoNrOrdine = magoNrOrdine.toUpperCase().replaceAll("ORDINE", "");
+			magoNrOrdine = magoNrOrdine.toUpperCase().replaceAll("ORD.", "");
+			
+			magoNrOrdine = magoNrOrdine.trim();
 			
 		}
 		

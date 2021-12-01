@@ -1,8 +1,8 @@
-package com.trello.beans;
+package com.pharmathek.trello.beans;
 
 import org.json.JSONObject;
 
-import com.utils.Dizionario;
+import com.pharmathek.utils.Dizionario;
 
 public class List {
 

@@ -1,4 +1,4 @@
-package com.sendemail;
+package com.pharmathek.sendemail;
 
 import java.util.Properties;
 

@@ -1,51 +1,23 @@
-package com.trello;
+package com.pharmathek.trello;
 
 import java.util.HashMap;
 
 import org.json.JSONArray;
 
-import com.trello.beans.Label;
-import com.trello.beans.Labels;
+import com.pharmathek.trello.beans.Label;
+import com.pharmathek.trello.beans.Labels;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
 public abstract class TrelloUtils {
 
-	public static boolean debug = true;
+	public static boolean debug = false;
 
 	public static String key = "b5854db6c1a68e80521ece217ed665fe";
 	public static String token = "125a0489a86f030d0f162f1bb5e75a92fd4d97068d060d7c718ec79410de58e7";
 
 	public static HttpResponse<String> getResponse(String curl, HashMap<String, String> keys) {
-
-//		String localCurl;
-//
-//		if (curl.indexOf("?") > 0) {
-//			localCurl = curl + "&";
-//		} else {
-//			localCurl = curl + "?";
-//		}
-//
-//		if (keys == null) {
-//			keys = new HashMap<String, String>();
-//		}
-//
-//		localCurl = localCurl + "key={apiKey}&token={apiToken}";
-//		keys.put("{apiKey}", key);
-//		keys.put("{apiToken}", token);
-//
-//		// Print keys and values
-//		for (String localKey : keys.keySet()) {
-//			localCurl = localCurl.replace(localKey, keys.get(localKey));
-//		}
-//
-////		localCurl = localCurl.replace("{apiKey}", key);
-////		localCurl = localCurl.replace("{apiToken}", token);		
-//
-//		if (debug == true) {
-//			System.out.println(localCurl);
-//		}
 
 		String localCurl = urlPrepare(curl, keys);
 		HttpResponse<String> localResponse;
@@ -59,11 +31,10 @@ public abstract class TrelloUtils {
 		return localResponse;
 	}
 
+	
 	public static HttpResponse<String> post(String curl, HashMap<String, String> keys) {
 
 		String localCurl = urlPrepare(curl, keys);
-
-//		localResponse = Unirest.post(localCurl).asString();
 
 		HttpResponse<String> localResponse = Unirest.post(localCurl).field("value", "614e1e55a4d6b515eaefaff0")
 				.asString();

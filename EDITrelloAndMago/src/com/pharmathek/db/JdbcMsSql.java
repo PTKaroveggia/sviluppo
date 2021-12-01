@@ -1,4 +1,4 @@
-package com.db;
+package com.pharmathek.db;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.db.bean.MagoOrdine;
+import com.pharmathek.db.bean.MagoOrdine;
 
 public class JdbcMsSql {
 
@@ -67,7 +67,7 @@ public class JdbcMsSql {
 	}
 	
 	
-	public static boolean updateDataOrdine(MagoOrdine ord, Date dataConferma) throws SQLException {
+	public static boolean updateDataOrdine(MagoOrdine ord, java.util.Date dataConferma) throws SQLException {
 		
 		
 		String qry = "update MA_SaleOrd set ConfirmedDeliveryDate = ? where SaleOrdId = ?";  
@@ -76,8 +76,15 @@ public class JdbcMsSql {
 		con.setAutoCommit(false);
 		
 		try {
-			PreparedStatement stmt = getDbConnection().prepareStatement(qry); 
-			stmt.setDate(1, (Date) ord.getData());
+			PreparedStatement stmt = getDbConnection().prepareStatement(qry);
+			
+			java.sql.Date datalocale = null;
+			
+			if (dataConferma != null) {
+				datalocale = new Date(dataConferma.getTime());
+			} 
+			
+			stmt.setDate(1, (Date) datalocale);
 			stmt.setInt(2, ord.getSaleOrdId());
 			
 			stmt.executeUpdate();

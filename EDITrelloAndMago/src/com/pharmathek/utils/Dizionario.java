@@ -1,4 +1,4 @@
-package com.utils;
+package com.pharmathek.utils;
 
 import java.util.HashMap;
 

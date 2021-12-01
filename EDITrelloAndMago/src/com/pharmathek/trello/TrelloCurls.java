@@ -1,4 +1,4 @@
-package com.trello;
+package com.pharmathek.trello;
 
 public abstract class TrelloCurls {
 
