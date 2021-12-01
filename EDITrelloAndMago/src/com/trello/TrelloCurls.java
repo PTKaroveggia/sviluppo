@@ -8,5 +8,6 @@ public abstract class TrelloCurls {
 	public static String BOARD_CARDS = httpRoot + "boards/{id}/cards";
 	public static String BOARD_LISTS = httpRoot + "boards/{id}/lists";
 	public static String CARD_ADD_LABEL = httpRoot + "cards/{id}/idLabels";
+	public static String LABELS_OF_BOARD = httpRoot + "boards/{id}/labels";
 
 }

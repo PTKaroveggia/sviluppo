@@ -8,6 +8,8 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.trello.TrelloUtils;
+
 public class Card {
 
 	private JSONObject jsonObj;
@@ -25,13 +27,14 @@ public class Card {
 	private JSONArray idMembers = null;
 	private JSONArray idLabels = null;
 	private JSONArray labels = null;
-	
 	private String magoNrOrdine= "";
+	private Labels etichetteLocal = null;
 
 	public Card(JSONObject innerObj) {
 		labels = new JSONArray();
 		idMembers = new JSONArray();
 		idLabels = new JSONArray();
+		etichetteLocal = new Labels(); 
 		
 
 		if (innerObj != null) {
@@ -49,8 +52,11 @@ public class Card {
 			dueComplete = jsonObj.getBoolean("dueComplete");
 			//idList = jsonObj.getString("idList");
 			idMembers = jsonObj.getJSONArray("idMembers");
-			idLabels = jsonObj.getJSONArray("idLabels");
 			
+			System.out.println(etichetteLocal.getList().toString());
+			TrelloUtils.readLabels(etichetteLocal, labels);
+			System.out.println(etichetteLocal.getList().toString());
+ 
 			
 			// Estraggo la data di scadenza 
 			try {
@@ -155,22 +161,10 @@ public class Card {
 		return due;
 	}
 
-	
-	public void readLabels(Labels etichette) {
-
-		for (int j = 0; j < getLabels().length(); j++) {
-
-			Label labelTemp = new Label(getLabels().getJSONObject(j));
-			
-			System.out.println(labelTemp.getName());
-			System.out.println(labelTemp.getColor());
-			System.out.println(labelTemp.getId());
-			System.out.println(labelTemp.getIdBoard());
-			
-			etichette.getList().put(labelTemp.getName(), labelTemp);
-
-		}
-		
+	public Labels getEtichette() {
+		return etichetteLocal;
 	}
+	
+	
 	
 }

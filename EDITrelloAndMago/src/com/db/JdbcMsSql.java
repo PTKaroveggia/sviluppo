@@ -2,6 +2,7 @@ package com.db;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -55,8 +56,8 @@ public class JdbcMsSql {
 		stmt.setString(1, nrOrdine);
 		ResultSet rs = stmt.executeQuery();
 		 while (rs.next()) {
+			 ord.setSaleOrdId(rs.getInt("SaleOrdId"));
              ord.setPriorita(rs.getInt("Priority"));
-             //ord.setda Priorita(rs.getInt("[Priority]"));
              ord.setData(rs.getDate("ConfirmedDeliveryDate"));
              ord.setRecordExist(true); 
          }
@@ -64,5 +65,31 @@ public class JdbcMsSql {
 		return ord; 
 		
 	}
+	
+	
+	public static boolean updateDataOrdine(MagoOrdine ord, Date dataConferma) throws SQLException {
+		
+		
+		String qry = "update MA_SaleOrd set ConfirmedDeliveryDate = ? where SaleOrdId = ?";  
+		Connection con = getDbConnection(); 
+		
+		con.setAutoCommit(false);
+		
+		try {
+			PreparedStatement stmt = getDbConnection().prepareStatement(qry); 
+			stmt.setDate(1, (Date) ord.getData());
+			stmt.setInt(2, ord.getSaleOrdId());
+			
+			stmt.executeUpdate();
+			con.commit();
+		} catch (SQLException e) {
+			con.rollback();
+			throw e; 
+		}
+		
+		return true;
+		
+	}
+	
 
 }

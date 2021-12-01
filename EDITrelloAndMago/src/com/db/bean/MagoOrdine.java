@@ -4,10 +4,12 @@ import java.util.Date;
 
 public class MagoOrdine {
 
+	private int saleOrdId = 0; 
 	private String nrOrdine = "";
 	private Date data = null;
 	private int priorita = 0;
 	private boolean recordExist = false;
+	
 	
 
 	public MagoOrdine() {
@@ -43,6 +45,14 @@ public class MagoOrdine {
 	
 	public boolean isRecordExist() {
 		return recordExist;
+	}
+	
+	public void setSaleOrdId(int saleOrdId) {
+		this.saleOrdId = saleOrdId;
+	}
+	
+	public int getSaleOrdId() {
+		return saleOrdId;
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class Labels {
 
-	private static HashMap<String, Label> labels = null;
+	private HashMap<String, Label> labels = null;
 
 	public HashMap<String, Label> getList() {
 

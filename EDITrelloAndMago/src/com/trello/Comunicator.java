@@ -22,10 +22,12 @@ import com.trello.beans.List;
 
 public class Comunicator {
 
+	static String  newline = System.getProperty("line.separator");
+	
 	public void run() {
 
 		/*
-		 * Reperire l'id della bacheca perchè deve essere utilizzato per le request
+		 * Reperire l'id della bacheca perchï¿½ deve essere utilizzato per le request
 		 * successive
 		 * 
 		 * Ciclare su tutte le cards NON ARCHIVIATE della bacheca Ciclare su tutte le
@@ -43,26 +45,21 @@ public class Comunicator {
 		 * --> Data scadenza aggiornata di volta in volta in Mago
 		 * 
 		 */
-		
-		
+
 		/**
 		 * 
-		 * Inviare email solo su effettive variazioni (data vs sobo e label verso produzione) 
-		 * 		codice	Descrizione
-		 *		40	Ordine con acconto
-		 * 		41	Ordine NO acconto
-		 * 		50	Ordine NO acconto - OK prod
+		 * Inviare email solo su effettive variazioni (data vs sobo e label verso
+		 * produzione) codice Descrizione 40 Ordine con acconto 41 Ordine NO acconto 50
+		 * Ordine NO acconto - OK prod
 		 *
-		 *  Eseguire questo applicativo con frequenza giornaliera alle ore 22:.00. 
-		 *  NON DEVE MANDARE EMAIL SE VARIAZIONI NON PRESENTI
-		 *  
-		 *  Identificare la label per il codice 50 e gestirla di conseguenza
+		 * Eseguire questo applicativo con frequenza giornaliera alle ore 22:.00. NON
+		 * DEVE MANDARE EMAIL SE VARIAZIONI NON PRESENTI
+		 * 
+		 * Identificare la label per il codice 50 e gestirla di conseguenza
 		 * 
 		 * SM 01/10/2021
 		 * 
 		 */
-		
-		
 
 //		Board board = getBoard("Slots Installazioni");
 		Board board = getBoard("Slots installazioni di prova");
@@ -72,7 +69,6 @@ public class Comunicator {
 		try {
 			elaboraCards(board);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -95,6 +91,19 @@ public class Comunicator {
 //		}
 //
 //	}
+
+	// Lettura etichette presenti su tutta la bacheca
+
+	private void leggiElencoEtichette(Board board, Labels anagraficoEtichette) {
+		// Labels etichette = new Labels();
+
+		HashMap<String, String> keys = new HashMap<>();
+		keys.put("{id}", board.getId());
+		JSONArray arrBoards = TrelloUtils.getArrayResponse(TrelloCurls.LABELS_OF_BOARD, keys);
+
+		TrelloUtils.readLabels(anagraficoEtichette, arrBoards);
+
+	}
 
 	/**
 	 * Dato il nome di una Bacheca, ne estraggo il bean da trello
@@ -142,159 +151,104 @@ public class Comunicator {
 		}
 	}
 
-	private void elaboraCards(Board board) throws SQLException {
+	private void elaboraCards(Board board) throws Exception {
 
+		// Leggo l'anagrafico etichette
+		Labels anagraficoEtichette = new Labels();
+		leggiElencoEtichette(board, anagraficoEtichette);
+
+		Label accontoOK = new Label(null);
+		Label accontoKO = new Label(null);
+		Label accontoKO_OKDG = new Label(null);
+		accontoOK = anagraficoEtichette.getList().get("ORDINE-CON ACCONTO");
+		accontoKO = anagraficoEtichette.getList().get("ORDINE-NO ACCONTO");
+		accontoKO_OKDG = anagraficoEtichette.getList().get("ORDINE-NO ACCONTO - OK PROD");
+
+		// TODO: SM 19.11.21 per AR: se le etichette non esistono devono essere create nella Board
+		if (accontoOK == null) {
+			// Creo nuova atichettta in Trello
+		}
+
+		// Leggo le card contenute nella Board
 		Cards progetti = new Cards();
-		Labels etichette = new Labels();
 
 		HashMap<String, String> keys = new HashMap<>();
 		keys.put("{id}", board.getId());
 		JSONArray arrCard = TrelloUtils.getArrayResponse(TrelloCurls.BOARD_CARDS, keys);
 
 		for (int i = 0; i < arrCard.length(); i++) {
-			JSONObject innerObj = arrCard.getJSONObject(i);
-
-			Card cardTemp = new Card(innerObj);
-			cardTemp.readLabels(etichette);
+			Card cardTemp = new Card(arrCard.getJSONObject(i));
 			progetti.getCards().put(cardTemp.getId(), cardTemp);
-
-			//System.out.println(etichette.toString());
-
-			System.out.println("*************************************");
-			System.out.println(innerObj.toString());
-//			System.out.println("***");
-			System.out.println(cardTemp.getIdList());
-			System.out.println(cardTemp.getId());
-			System.out.println(cardTemp.getName());
-			System.out.println(cardTemp.getMagoNrOrdine());
-//			System.out.println(cardTemp.getDue().toString());
-			System.out.println("----------------------------------------------");
-//			System.out.println("***");
-//			System.out.println(cardTemp.getUrl());
-//			System.out.println("***");
-//			System.out.println(cardTemp.getLabels().toString());
-
-//			for (int j = 0; j < cardTemp.getLabels().length(); j++) {
-//
-//				Label labelTemp = new Label(cardTemp.getLabels().getJSONObject(j));
-//
-//				System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-//				System.out.println(labelTemp.getName());
-//				System.out.println(labelTemp.getColor());
-//				System.out.println(labelTemp.getId());
-//				System.out.println(labelTemp.getIdBoard());
-//
-//			}
-
-			System.out.println("--------------------");
 		}
 
-		// Stampo l'elenco delle etichette che ho nella bacheca
-//		for (Map.Entry<String, Label> entry : etichette.getList().entrySet()) {
-//			System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-//		}
+		if (accontoOK == null)
+			throw new Exception("object accontoOK is null");
+		if (accontoKO == null)
+			throw new Exception("object accontoKO is null");
+		if (accontoKO_OKDG == null)
+			throw new Exception("object accontoKO_OKDG is null");
 
-		// TODO: se non trovo le etichette dovrò crearne di nuove
-		// Cerco le due etichette necessarie alla gestione dell'acconto
-		// TODO: AR Aggiungere terza etichetta 
-		Label accontoOK = new Label(null);
-		Label accontoKO = new Label(null);
-		accontoOK = etichette.getList().get("ORDINE-CON ACCONTO");
-		accontoKO = etichette.getList().get("ORDINE-NO ACCONTO");
+		// Effettuo i controlli di merito richiesti
+		controlliENotifiche(accontoOK, accontoKO, accontoKO_OKDG, progetti);
+
+	}
+
+	private void controlliENotifiche(Label accontoOK, Label accontoKO, Label accontoKO_OKDG, Cards progetti)
+			throws SQLException {
+		
+		String emailDestProd, emailDestSOBO;
+		
+		emailDestProd = "produzione@pharmathek.com";
+		emailDestSOBO = "sobo@pharmathek.com"; 
+		
+		if (TrelloUtils.debug) {
+			emailDestProd = "s.mezzani@pharmathek.com";
+			emailDestSOBO = "s.mezzani@pharmathek.com"; 
+			
+		}
+
+		// Creo i SB per reportistica via email
 		StringBuffer sbTrelloProgettiNonID = new StringBuffer();
 		StringBuffer sbOrdineNonTrovato = new StringBuffer();
 		StringBuffer sbMagoDataVariata = new StringBuffer();
 		StringBuffer sbTrelloPrioritaVariata = new StringBuffer();
-		
-		// TODO: AR Se tutte tre etichette non null, ok ... altrimenti cosa fare???
-		
-		// TODO per Alberto: isolare i string buffer per contestualizzare i testi delle email:
-		// sobo@pharmathek.com mail con elenco progetti data variata, e nr totale progetti analizzati. Modificare l'oggeto della mail se presenti o meno progetti con data variata
-		// produzione@pharmathek.com 
-		
-		
+
 		// ciclo su tutte le card e ele controllo una alla volta
 		for (Map.Entry<String, Card> entry : progetti.getCards().entrySet()) {
-			System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
-			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, sbTrelloProgettiNonID, sbOrdineNonTrovato, sbMagoDataVariata, sbTrelloPrioritaVariata);
-			
+			// System.out.println("Key = " + entry.getKey() + ", Value = " +
+			// entry.getValue());
+			VerificaProgetto(entry.getValue(), accontoOK, accontoKO, accontoKO_OKDG, sbTrelloProgettiNonID,
+					sbOrdineNonTrovato, sbMagoDataVariata, sbTrelloPrioritaVariata);
+
 		}
-		
-		// TODO: AR Verificare se sb valorizzati o meno, se valorizzati inviare email se vuoti ... ????
-		
-//		if (sbMagoDataVariata.length() == 0) {
-//			sbMagoDataVariata.append("NON SONO STATE RILEVATE VARIAZIONI"); 
-//		} 
-//		
-//
-		
-		
-		
-//		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Trello senza ID", sbTrelloProgettiNonID.toString()) ;
-		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Trello non trovati in MAGO", sbOrdineNonTrovato.toString()) ;
-		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Date di consegna variate", sbMagoDataVariata.toString()) ;
-		new SendMail().sendEmail("s.mezzani@pharmathek.com", "CtrOrder TRELLO-MAGO Progetti Priorità variate", sbTrelloPrioritaVariata.toString()) ;
-		
-//
-//		
-		/*
-		 * 
-		 * // Aggioungi label TrelloUtils.addLabel("61498d910000c8335d9ceb8b",
-		 * "614e1e55a4d6b515eaefaff0"); // Rimuovi label
-		 * TrelloUtils.deleteLabel("61498d910000c8335d9ceb8b",
-		 * "614e1e55a4d6b515eaefaff0");
-		 * 
-		 */
 
-//		HashMap<String, String> keys2 = new HashMap<>();
-//		keys2.put("{idBoard}", "61498a38a80135736c4522cf");
-//		keys2.put("{name}", "etichetta");
-//		keys2.put("{color}", "lime");
-//		HttpResponse response = TrelloUtils.post("https://api.trello.com/1/labels?name={name}&color={color}&idBoard={idBoard}", keys2);
-//		System.out.println(response.getBody());
-// 		{"id":"614e1e55a4d6b515eaefaff0","idBoard":"61498a38a80135736c4522cf","name":"etichetta","color":"lime","limits":{}}
+		// Preparazione invio email
 
-//		HashMap<String, String> keys3 = new HashMap<>();
-//		keys3.put("{id}", "61498d910000c8335d9ceb8b");
-//		keys3.put("{idLabel}", "614e1e55a4d6b515eaefaff0");
-//		HttpResponse response2 = TrelloUtils.delete("https://api.trello.com/1/cards/{id}/idLabels/{idLabel}", keys3);
-//		System.out.println(response2.getBody());
+		if (sbTrelloProgettiNonID.length() != 0) {
+			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello senza ID", sbTrelloProgettiNonID.toString());
+		}
 
-//			HashMap<String, String> keys2 = new HashMap<>();
-//			keys2.put("{id}", "61498d910000c8335d9ceb8b");
-//			keys2.put("{name}", "PROVA2");
-//			keys2.put("{idList}", "61498d85a9e06c39b7750807");
+		if (sbOrdineNonTrovato.length() != 0) {
+			new SendMail().sendEmail(emailDestProd,"CtrOrder TRELLO-MAGO Progetti Trello non trovati in MAGO", sbOrdineNonTrovato.toString());
+		}
 
-//		HttpResponse response = TrelloUtils.post("https://api.trello.com/1/cards?idList={idList}", keys2);
-//		System.out.println(response.getBody());
+		if (sbMagoDataVariata.length() != 0) {
+			new SendMail().sendEmail(emailDestSOBO,"CtrOrder TRELLO-MAGO Progetti Date di consegna variate", sbMagoDataVariata.toString());
+		}
 
-//		Creare una Board		
-//		HttpResponse response = TrelloUtils.post("https://api.trello.com/1/boards/?name={name}", keys2);
-
-		// Aggiungi label
-
-//		HashMap<String, String> keys2 = new HashMap<>();
-//		keys2.put("{id}", "61498d910000c8335d9ceb8b");
-//		keys2.put("{idLabels}", "614d8b0a29d2e33be255585a");
-//		HttpResponse response = TrelloUtils.post(TrelloCurls.CARD_ADD_LABEL, keys2);
-//		System.out.println(response.getBody());
+		if (sbTrelloPrioritaVariata.length() != 0) {
+			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Priorita' variate", sbTrelloPrioritaVariata.toString());
+			new SendMail().sendEmail(emailDestSOBO, "CtrOrder TRELLO-MAGO Progetti Priorita' variate", sbTrelloPrioritaVariata.toString());			
+		}
 	}
 
-	
-	// TODO: SM 27/09/21 Manca interpretazione del campo priorità e relativa scittura di labels e data  
-	
 	// Verifico i dati del progetto, leggendo i dati dal db e confrontandoli con i
 	// dati presenti su Trello
-	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, 
-				StringBuffer sbTrelloProgettiNonID, 
-				StringBuffer sbOrdineNonTrovato, 
-				StringBuffer sbMagoDataVariata, 
-				StringBuffer sbTrelloPrioritaVariata
-		) throws SQLException {
-		
-		
-		String newline = System.getProperty("line.separator");
-		
+	private void VerificaProgetto(Card progetto, Label accontoOK, Label accontoKO, Label accontoKO_OKDG,
+			StringBuffer sbTrelloProgettiNonID, StringBuffer sbOrdineNonTrovato, StringBuffer sbMagoDataVariata,
+			StringBuffer sbTrelloPrioritaVariata) throws SQLException {
+
+
 		/*
 		 * Verifiche da effettuare: Data di scadenza di trello --> data consegna di
 		 * mago. Se variata aggiornare la data presente su Mago e notificare via email
@@ -307,55 +261,103 @@ public class Comunicator {
 
 		System.out.println(ordine.getNrOrdine());
 
-		StringBuffer sbTemp = new StringBuffer(); 
-		
-		sbTemp.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
-		sbTemp.append("progetto su Trello : "+ progetto.getName() +newline); 
-		sbTemp.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
+		StringBuffer sbTemp = new StringBuffer();
 
-		
+		sbTemp.append(newline + "Ordine " + progetto.getMagoNrOrdine() + newline);
+		sbTemp.append("Progetto Trello : " + progetto.getName() + newline);
+		sbTemp.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline);
+
 		if (progetto.getMagoNrOrdine().equals("")) {
-			
-			if(sbTrelloProgettiNonID.length() == 0 ) {
-				sbTrelloProgettiNonID.append(newline+"Elenco progetti Trello non identificabili su MAGO."+newline+newline+
-													 "Verificare il nome del progetto su TRELLO: il numero dell'ordine di MAGO deve essere tra parentesi quadre. ex: [nrOrdine]." + newline +newline);
-			}
-			
-			sbTrelloProgettiNonID.append("Progetto su Trello : "+ progetto.getName() +newline); 
-			
-		} else if (!ordine.isRecordExist()) {
-			
-			if (sbOrdineNonTrovato.length() == 0) {
-				sbOrdineNonTrovato.append(newline+"Elenco progetti Trello non trovati su MAGO."+newline+newline
-										+"Verificare su Trello il che il numero dell'ordine sia corretto)." + newline);
-			}
-			
 
-			
-			sbOrdineNonTrovato.append(newline + "Ordine "+ progetto.getMagoNrOrdine() +newline); 
-			sbOrdineNonTrovato.append("progetto su Trello : "+ progetto.getName() +newline); 
-			sbOrdineNonTrovato.append("ordine su Mago     : "+ progetto.getMagoNrOrdine() +newline); 
+			if (sbTrelloProgettiNonID.length() == 0) {
+				sbTrelloProgettiNonID.append(newline + "Elenco progetti Trello non identificabili su MAGO.".toUpperCase() + newline
+						+ newline
+						+ "Verificare il nome del progetto su TRELLO: il numero dell'ordine di MAGO deve essere tra parentesi quadre. ex: [nrOrdine].".toUpperCase()
+						+ newline + newline);
+			}
+
+			sbTrelloProgettiNonID.append("Progetto Trello : " + progetto.getName() + newline);
+
+		} else if (!ordine.isRecordExist()) {
+
+			if (sbOrdineNonTrovato.length() == 0) {
+				sbOrdineNonTrovato.append(newline + "Elenco progetti Trello non trovati su MAGO.".toUpperCase() + newline + newline
+						+ "Verificare su Trello che il numero dell'ordine sia corretto; ".toUpperCase()
+						+ "L'ordine presente tra parentesi quadre non e' stato trovato in MAGO.".toUpperCase() + newline + newline);
+			}
+
+			sbOrdineNonTrovato.append("Progetto Trello : " + progetto.getName() + newline);
+			sbOrdineNonTrovato.append("Ordine Mago     : " + progetto.getMagoNrOrdine() + newline + newline);
 
 		} else {
-			
+
 			if (!dateUguali(progetto.getDue(), ordine.getData())) {
 				System.out.println("Date diverse");
 				System.out.println("Data Trello:" + progetto.getDue());
 				System.out.println("Data Mago  :" + ordine.getData());
-	
-				sbMagoDataVariata.append(">> La data di consegna risulta variata:  Data in Trello: "+ printDateToStr(progetto.getDue()) + " Data in Mago: " +  printDateToStr(ordine.getData())+newline); 
+
+				if (sbMagoDataVariata.length() == 0) {
+					sbMagoDataVariata.append(
+							newline + "Elenco progetti dove la data di consegna risulta variata.".toUpperCase() + newline + newline);
+				}
+
+				sbMagoDataVariata.append("Ordine MAGO    : " + ordine.getNrOrdine() + newline);
+				sbMagoDataVariata.append("Progetto TRELLO: " + progetto.getName() + newline);
+				sbMagoDataVariata.append("Data MAGO      : " + printDateToStr(ordine.getData()) + newline);
+				sbMagoDataVariata.append("Data Trello    : " + printDateToStr(progetto.getDue()) + newline + newline);
+
+				// TODO:x SM  Modificare la data in MAGO
+				// JdbcMsSql.updateDataOrdine(ordine, null);
+				
 			} else {
 				System.out.println("Date UGUALI");
 			}
-			
+
+			controllaPriorita(progetto, 40, accontoOK, sbTrelloPrioritaVariata, ordine);
+			controllaPriorita(progetto, 41, accontoKO, sbTrelloPrioritaVariata, ordine);
+			controllaPriorita(progetto, 50, accontoKO_OKDG, sbTrelloPrioritaVariata, ordine);
+
 		}
+
+	}
+
+	/**
+	 * Procedura per la verifica delle prioritÃ  impostate su Mago 
+	 * @param progetto
+	 * @param priorita
+	 * @param etichetta
+	 * @param sbTrelloPrioritaVariata
+	 * @param ordine
+	 */
+	private void controllaPriorita(Card progetto, int priorita, Label etichetta, StringBuffer sbTrelloPrioritaVariata,
+			MagoOrdine ordine) {
+
 		
+		if (sbTrelloPrioritaVariata.length() == 0) {
+			sbTrelloPrioritaVariata.append(newline + "Elenco progetti Trello con priorita' variata su MAGO.".toUpperCase() + newline + newline);
+		}
 
-//		System.out.println(ordine.getPriorita());
-//		System.out.println(ordine.getData());
-//		System.out.println("Fine lettura dati prgetto");
-//		System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+		
+		if (ordine.getPriorita() == priorita) {
+			if (progetto.getEtichette().getList().get(etichetta.getName()) == null) {
+				System.out.println("Etichetta " + etichetta.getName() + " aggiunta");
+				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
+				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
+				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita);
+				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " aggiunta");
+				TrelloUtils.addLabel(progetto.getId(), etichetta.getId());
+			}
+		} else {
 
+			if (progetto.getEtichette().getList().get(etichetta.getName()) != null) {
+				System.out.println("Etichetta " + etichetta.getName() + " rimossa");
+				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
+				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
+				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita);
+				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " rimossa");
+				TrelloUtils.deleteLabel(progetto.getId(), etichetta.getId());
+			}
+		}
 	}
 
 	private boolean dateUguali(Date due, Date data) {
@@ -367,16 +369,16 @@ public class Comunicator {
 			return df.format(due).equals(df.format(data));
 		}
 	}
-	
+
 	private String printDateToStr(Date data) {
-		String dataStr = ""; 
-		if(data != null) {
+		String dataStr = "";
+		if (data != null) {
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 			dataStr = df.format(data);
 		} else {
 			dataStr = "--/--/----";
 		}
-		return dataStr; 
+		return dataStr;
 	}
 
 }

@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 import org.json.JSONArray;
 
+import com.trello.beans.Label;
+import com.trello.beans.Labels;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -147,6 +150,18 @@ public abstract class TrelloUtils {
 	public static JSONArray getArrayResponse(String curl, HashMap<String, String> keys) {
 
 		return new JSONArray(getResponse(curl, keys).getBody());
+	}
+
+	public static void readLabels(Labels etichette, JSONArray JSONlabels) {
+
+		for (int j = 0; j < JSONlabels.length(); j++) {
+
+			Label labelTemp = new Label(JSONlabels.getJSONObject(j));
+
+			etichette.getList().put(labelTemp.getName(), labelTemp);
+
+		}
+
 	}
 
 }
