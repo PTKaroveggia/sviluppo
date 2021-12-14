@@ -10,7 +10,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class SendMail {
+public class SendMail2 {
 
 //    public static void main(String[] args) {
 //
@@ -79,13 +79,13 @@ public class SendMail {
 
 		// Sender's email ID needs to be mentioned
 		String from = "automation@mattec.it";
-		
+
 		// Assuming you are sending email from through gmails smtp
 		String host = "smtp.office365.com";
 
 		// Get system properties
 		Properties properties = System.getProperties();
-		
+
 		// Setup mail server
 		properties.put("mail.smtp.host", host);
 		properties.put("mail.smtp.port", "587");

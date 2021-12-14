@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project EDITrelloAndMago with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR file Export Wizard-->
+    <!--ANT 1.7 is required-->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="C:/Sviluppo/Eclipse"/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/EDITrelloAndMago.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.pharmathek.Runner"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ unirest-java-2.2.00.jar httpclient-4.5.6.jar httpcore-4.4.10.jar commons-logging-1.2.jar commons-codec-1.10.jar httpmime-4.5.6.jar httpasyncclient-4.1.4.jar httpcore-nio-4.4.10.jar json-20180813.jar mssql-jdbc-9.4.0.jre11.jar javax.mail-1.6.2.jar activation-1.1.jar"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="C:/Users/a.roveggia/git/sviluppo/EDITrelloAndMago/target/classes"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/com/konghq/unirest-java/2.2.00" includes="unirest-java-2.2.00.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/apache/httpcomponents/httpclient/4.5.6" includes="httpclient-4.5.6.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/apache/httpcomponents/httpcore/4.4.10" includes="httpcore-4.4.10.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/commons-logging/commons-logging/1.2" includes="commons-logging-1.2.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/commons-codec/commons-codec/1.10" includes="commons-codec-1.10.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/apache/httpcomponents/httpmime/4.5.6" includes="httpmime-4.5.6.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/apache/httpcomponents/httpasyncclient/4.1.4" includes="httpasyncclient-4.1.4.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/apache/httpcomponents/httpcore-nio/4.4.10" includes="httpcore-nio-4.4.10.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/org/json/json/20180813" includes="json-20180813.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/com/microsoft/sqlserver/mssql-jdbc/9.4.0.jre11" includes="mssql-jdbc-9.4.0.jre11.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/com/sun/mail/javax.mail/1.6.2" includes="javax.mail-1.6.2.jar"/>
+            <zipfileset dir="C:/Users/a.roveggia/.m2/repository/javax/activation/activation/1.1" includes="activation-1.1.jar"/>
+        </jar>
+    </target>
+</project>

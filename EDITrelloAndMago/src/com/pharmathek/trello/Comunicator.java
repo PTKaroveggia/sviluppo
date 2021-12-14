@@ -196,14 +196,15 @@ public class Comunicator {
 	private void controlliENotifiche(Label accontoOK, Label accontoKO, Label accontoKO_OKDG, Cards progetti)
 			throws SQLException {
 
-		String emailDestProd, emailDestSOBO;
+		String emailDestProd, emailDestSOBO, emailDestGen;
 
-		emailDestProd = "produzione@pharmathek.com";
-		emailDestSOBO = "sobo@pharmathek.com";
+		emailDestProd = "a.roveggia@pharmathek.com";
+		emailDestSOBO = "a.roveggia@pharmathek.com";
+		emailDestGen = "ced@pharmathek.com";
 
 		if (TrelloUtils.debug) {
-			emailDestProd = "s.mezzani@pharmathek.com";
-			emailDestSOBO = "s.mezzani@pharmathek.com";
+			emailDestProd = "a.roveggia@pharmathek.com";
+			emailDestSOBO = "a.roveggia@pharmathek.com";
 
 		}
 
@@ -222,6 +223,8 @@ public class Comunicator {
 		}
 
 		// Preparazione invio email
+		
+
 
 		if (sbTrelloProgettiNonID.length() != 0) {
 			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello senza ID",
@@ -244,6 +247,20 @@ public class Comunicator {
 			// new SendMail().sendEmail(emailDestSOBO, "CtrOrder TRELLO-MAGO Progetti
 			// Priorita' variate", sbTrelloPrioritaVariata.toString());
 		}
+		
+		
+		String testo = "";
+
+		if (sbTrelloProgettiNonID.length() != 0 || sbOrdineNonTrovato.length() != 0 || sbMagoDataVariata.length() != 0
+				|| sbTrelloPrioritaVariata.length() != 0) {
+
+			testo = sbTrelloProgettiNonID.toString() + newline + sbOrdineNonTrovato.toString() + newline
+					+ sbMagoDataVariata.toString() + newline + sbTrelloPrioritaVariata.toString();
+		} else {
+			testo = "Nessuna segnalazione";
+		}
+
+		new SendMail().sendEmail(emailDestGen, "CtrOrder TRELLO-MAGO Riepilogo generale", testo);
 	}
 
 	// Verifico i dati del progetto, leggendo i dati dal db e confrontandoli con i
@@ -401,5 +418,6 @@ public class Comunicator {
 		}
 		return dataStr;
 	}
-
+	
+	
 }
