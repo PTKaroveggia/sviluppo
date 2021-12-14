@@ -198,13 +198,14 @@ public class Comunicator {
 
 		String emailDestProd, emailDestSOBO, emailDestGen;
 
-		emailDestProd = "a.roveggia@pharmathek.com";
-		emailDestSOBO = "a.roveggia@pharmathek.com";
-		emailDestGen = "ced@pharmathek.com";
+		emailDestProd = "produzione@pharmathek.com";
+		emailDestSOBO = "sobo@pharmathek.com";
+		emailDestGen  = "ced@pharmathek.com";
 
 		if (TrelloUtils.debug) {
-			emailDestProd = "a.roveggia@pharmathek.com";
-			emailDestSOBO = "a.roveggia@pharmathek.com";
+			emailDestProd = "ced@pharmathek.com";
+			emailDestSOBO = "ced@pharmathek.com";
+			emailDestGen = "ced@pharmathek.com";
 
 		}
 
@@ -224,8 +225,6 @@ public class Comunicator {
 
 		// Preparazione invio email
 		
-
-
 		if (sbTrelloProgettiNonID.length() != 0) {
 			new SendMail().sendEmail(emailDestProd, "CtrOrder TRELLO-MAGO Progetti Trello senza ID",
 					sbTrelloProgettiNonID.toString());
@@ -336,7 +335,6 @@ public class Comunicator {
 					sbMagoDataVariata
 							.append("Data Trello    : " + printDateToStr(progetto.getDue()) + newline + newline);
 
-					// TODO:x SM Modificare la data in MAGO
 					JdbcMsSql.updateDataOrdine(ordine, progetto.getDue());
 
 				} else {
@@ -371,8 +369,8 @@ public class Comunicator {
 				System.out.println("Etichetta " + etichetta.getName() + " aggiunta");
 				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
 				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
-				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita);
-				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " aggiunta");
+				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita+ newline);
+				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " aggiunta"+ newline+ newline);
 				TrelloUtils.addLabel(progetto.getId(), etichetta.getId());
 			}
 		} else {
@@ -382,8 +380,8 @@ public class Comunicator {
 				System.out.println("Etichetta " + etichetta.getName() + " rimossa");
 				sbTrelloPrioritaVariata.append("Progetto TRELLO : " + progetto.getName() + newline);
 				sbTrelloPrioritaVariata.append("Ordine MAGO     : " + ordine.getNrOrdine() + newline);
-				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita);
-				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " rimossa");
+				sbTrelloPrioritaVariata.append("Cod. priorita'  :" + priorita+ newline);
+				sbTrelloPrioritaVariata.append("Etichetta       :" + etichetta.getName() + " rimossa"+ newline+ newline);
 				TrelloUtils.deleteLabel(progetto.getId(), etichetta.getId());
 			}
 		}
