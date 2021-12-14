@@ -78,18 +78,18 @@ public class SendMail {
 //    	String emailTo = "s.mezzani@pharmathek.com";
 
 		// Sender's email ID needs to be mentioned
-		String from = "automation@mattec.it";
-		
+		String from = "qualita@pharmathek.com";
+
 		// Assuming you are sending email from through gmails smtp
-		String host = "smtp.office365.com";
+		String host = "smtp.gmail.com";
 
 		// Get system properties
 		Properties properties = System.getProperties();
-		
+
 		// Setup mail server
 		properties.put("mail.smtp.host", host);
-		properties.put("mail.smtp.port", "587");
-	    properties.put("mail.smtp.starttls.enable", "true");
+		properties.put("mail.smtp.port", "465");
+		properties.put("mail.smtp.ssl.enable", "true");
 		properties.put("mail.smtp.auth", "true");
 
 		// Get the Session object.// and pass username and password
@@ -97,7 +97,7 @@ public class SendMail {
 
 			protected PasswordAuthentication getPasswordAuthentication() {
 
-				return new PasswordAuthentication("automation@mattec.it", "MTCZileri2021-");
+				return new PasswordAuthentication("qualita@pharmathek.com", "Qual2014");
 
 			}
 
