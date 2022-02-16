@@ -254,7 +254,7 @@ public class Comunicator {
 				|| sbTrelloPrioritaVariata.length() != 0) {
 
 			testo = sbTrelloProgettiNonID.toString() + newline + sbOrdineNonTrovato.toString() + newline
-					+ sbMagoDataVariata.toString() + newline + sbTrelloPrioritaVariata.toString();
+					+ sbMagoDataVariata.toString() + newline + sbTrelloPrioritaVariata.toString() + newline ;
 		} else {
 			testo = "Nessuna segnalazione";
 		}
