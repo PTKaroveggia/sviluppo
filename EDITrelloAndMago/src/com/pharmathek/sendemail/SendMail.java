@@ -20,21 +20,22 @@ public class SendMail {
 
 	public void sendEmail(String emailTo, String emailObject, String emailText) {
 
+//		
 		Properties properties = System.getProperties();
-		// Setup mail server
-		properties.put("mail.smtp.host", "smtp.gmail.com");
-		properties.put("mail.smtp.port", "465");
-		properties.put("mail.smtp.ssl.enable", "true");
-		properties.put("mail.smtp.auth", "true");
-		String from = "qualita@pharmathek.com";
 		
-//		Properties properties = System.getProperties();
-//		// Setup mail server
-//		properties.put("mail.smtp.host", "smtp.office365.com");
-//		properties.put("mail.smtp.port", "587");
-//		properties.put("mail.smtp.starttls.enable", "true");
+		// Setup mail server gmail
+//		properties.put("mail.smtp.host", "smtp.gmail.com");
+//		properties.put("mail.smtp.port", "465");
+//		properties.put("mail.smtp.ssl.enable", "true");
 //		properties.put("mail.smtp.auth", "true");
-//		String from = "automation@mattec.it";
+//		String from = "qualita@pharmathek.com";
+//		
+		// Setup mail server
+		properties.put("mail.smtp.host", "smtp.office365.com");
+		properties.put("mail.smtp.port", "587");
+		properties.put("mail.smtp.starttls.enable", "true");
+		properties.put("mail.smtp.auth", "true");
+		String from = "automation@laramis.com";
 
 		
 		
@@ -43,7 +44,7 @@ public class SendMail {
 
 			protected PasswordAuthentication getPasswordAuthentication() {
 
-				return new PasswordAuthentication("qualita@pharmathek.com", "Qual2014");
+				return new PasswordAuthentication("automation@laramis.com", "Artemis2022*");
 //				return new PasswordAuthentication(from, "MTCZileri2021-");
 
 			}
@@ -79,5 +80,4 @@ public class SendMail {
 		}
 
 	}
-
 }
